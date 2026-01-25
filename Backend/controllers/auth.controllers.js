@@ -2,9 +2,12 @@ import genToken from "../config/token.js"
 import User from "../models/user.model.js"
 
 import bcrypt from "bcryptjs"
-export const signUp = async (req, res)=>{
-    try {
-        const{name, email, password}= req.body;
+export const signUp = async (req, res) => {
+  try {
+    console.log("REQ BODY:", req.body);   // 👈 ADD THIS
+
+    const { name, email, password } = req.body;
+
         const existEmial=await User.findOne({email})
         if(existEmial){
             return res.status(400).json({message:"email already exist!"})

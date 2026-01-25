@@ -13,18 +13,31 @@ function SignUp() {
     const [email, setEmail]=useState("")
       const [password, setPassword]=useState("")
       
-      const handleSignUp = async(e)=>{
-        e.preventDefault()
-try {
-  let result=await axios.post(`${serverUrl}/api/auth/signup`,{
-    name,email,password,
-  },{withCredentials:true})
-  console.log(result)
-  
-} catch (error) {
-  console.log(error)
-}
+     const handleSignUp = async (e) => {
+  e.preventDefault();
+
+  try {
+    const result = await axios.post(
+      `${serverUrl}/api/auth/signup`,
+      {
+        name,
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
+    );
+
+    console.log("Signup success:", result.data);
+  } catch (error) {
+    console.log("Signup error:", error.response?.data || error.message);
+  }
+};
+
 
 
 
