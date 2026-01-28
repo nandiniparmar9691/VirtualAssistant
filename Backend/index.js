@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth.routes.js";
 import connectDb from "./config/db.js";
+import userRouter from "./routes/user.routes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(cookieParser());
 
 // routes
 app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 
 // test route (important for checking)
 app.get("/", (req, res) => {

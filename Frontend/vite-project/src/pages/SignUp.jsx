@@ -3,19 +3,22 @@ import bg from "../assets/authBg.png"
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
-import { userDataContext } from '../context/userContext';
+import { userDataContext } from '../context/UserContext';
 import axios from "axios"
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
-  const {serverUrl}=useContext(userDataContext)
+  const {serverUrl,userData,setUserData}=useContext(userDataContext)
   const navigate=useNavigate()
   const [name, setName]=useState("")
     const [email, setEmail]=useState("")
+        const [loading, setLoading]= useState(false)
       const [password, setPassword]=useState("")
-      
+      const [err, setErr]=useState("")
      const handleSignUp = async (e) => {
   e.preventDefault();
+setErr("")
 
+setLoading(false)
   try {
     const result = await axios.post(
       `${serverUrl}/api/auth/signup`,
@@ -24,17 +27,19 @@ function SignUp() {
         email,
         password,
       },
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
+      
+        {withCredentials: true})
+        setUserData(result.data)
+       
+        
     console.log("Signup success:", result.data);
+    setLoading(false)
+    navigate("/customize")
   } catch (error) {
     console.log("Signup error:", error.response?.data || error.message);
+    setUserData(null)
+    setLoading(false)
+    setErr(error.response.data.message)
   }
 };
 
@@ -53,7 +58,9 @@ function SignUp() {
         {showPassword &&  <IoMdEyeOff className='absolute top-[18px] right-[20px] w-[25px] h-[25px] text-[white] cursor-pointer' onClick={()=>setShowPassword(false)} />}
        
         </div>
-        <button className='min-w-[150px] h-[60px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px]'>Sign Up</button>
+       {err.length>0 && <p className='text-red-500 text-[17px]'>*{err}</p>}
+       
+        <button className='min-w-[150px] h-[60px] mt-[30px] text-black font-semibold bg-white rounded-full text-[19px]' disabled={loading}>{loading?"Loading...":"sign Up"}</button>
       <p className='text-[white] text-[18px] cursor-pointer' onClick={()=>navigate("/signIn")}>Already have an account ? <span className='text-blue-400'>Sign In</span></p>
       </form>
     </div>
