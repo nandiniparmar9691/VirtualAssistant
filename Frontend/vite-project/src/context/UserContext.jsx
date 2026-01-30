@@ -18,6 +18,26 @@ const handleCurrentUser =async ()=>{
         
     }
 }
+
+
+
+const getGeminiResponse=async (command)=>{
+try {
+    const result= await axios.post(
+  `${serverUrl}/api/user/asktoassistant`,
+  { command},
+  { withCredentials: true }
+)
+
+    return result.data
+} catch (error) {
+  console.error("Gemini API error:", error)
+  return {
+    response: "Something went wrong. Please try again."
+  }
+}
+
+}
 useEffect(()=>{
     handleCurrentUser()
 },[])
@@ -28,7 +48,7 @@ useEffect(()=>{
 
     const value={
 serverUrl,userData, setUserData, backendImage, setBackendImage,frontendImage, setFrontendImage,
-selectedImage, setSelectedImage
+selectedImage, setSelectedImage,getGeminiResponse
     }
  
  return (
