@@ -1,7 +1,8 @@
-import axios from "axios"
-const geminiResponse=async(command,assistantName, userName)=>{
-    try {
-        const apiUrl=process.env.GEMINI_API_URL;
+import axios from "axios";
+
+const geminiResponse = async (command, assistantName, userName) => {
+  try {
+    const apiUrl = process.env.GEMINI_API_URL;
 
 
 
@@ -44,18 +45,21 @@ Important:
 nou your userInput- ${command}`;
 
 
-const result=await axios.post(apiUrl,{
-            "contents": [
-      {
-        "parts": [
-          {
-            "text": "prompt"}]
-          }] 
-        });
-        return result.data.candidates[0].content.parts[0].text;
-    } catch (error) {
-        console.log(error);
-    }
-} 
+
+     const result = await axios.post(apiUrl, {
+      contents: [
+        {
+          role: "user",   // ✅ THIS WAS THE BUG
+          parts: [{ text: prompt }]
+        }
+      ]
+    });
+
+    return result.data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.log("GEMINI ERROR:", error.response?.data || error.message);
+    return null;
+  }
+};
 
 export default geminiResponse;

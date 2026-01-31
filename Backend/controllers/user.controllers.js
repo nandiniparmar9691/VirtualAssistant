@@ -47,11 +47,12 @@ export const askToAssistant =async(req, res)=>{
         const result=await geminiResponse(command, assistantName, userName)
        const jsonMatch = result.match(/{[\s\S]*}/);
 
-        if (!jsonMatch) {
+        
+       if (!jsonMatch) {
   return res.json({
     type: "general",
     userInput: command,
-    response: result
+    response: result   // speak whatever Gemini said
   })
 }
 
@@ -72,7 +73,6 @@ const gemResult=JSON.parse(jsonMatch[0])
             });
 
   case 'get_day':
-
               return res.json({
                 type,
                 userInput:gemResult.userInput,
@@ -99,17 +99,20 @@ return res.json({
 })
 
  default:
-   return res.json({
-  type: "general",
-  userInput: command,
-  response: "Sorry, I couldn't understand that."
-})
+        return res.json({
+          type: "general",
+          userInput: command,
+          response: "Sorry, I couldn't understand that."
+        })
+    
+
+
      }
-
-     
     } catch (error) {
-         return res.status(500).json({response: "ask assistant error"})
-         console.log("COMMAND:", req.body.command)
-
-    }
-    }
+    console.error(error)
+    return res.status(500).json({
+      type: "general",
+      response: "Ask assistant error"
+    })
+  }
+}

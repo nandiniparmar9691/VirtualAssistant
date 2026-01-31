@@ -1,10 +1,17 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useState, useContext, useEffect, useRef} from 'react'
 import { userDataContext } from '../context/UserContext'
 import { useNavigate } from 'react-router-dom'
-
+import axios from "axios"
 function Home() {
   const {userData, serverUrl, setUserData, getGeminiResponse}=useContext(userDataContext)
   const navigate=useNavigate()
+  
+  const recognitionRef = useRef(null)
+  const isRecognizingRef = useRef(false)
+  const isSpeakingRef = useRef(false)
+ const [listening,setListening]=useState(false)
+
+  const synth=window.speechSynthesis
   const handleLogOut=async()=>{
     try {
       const result=await axios.get(`${serverUrl}/api/auth/logout`,
@@ -19,27 +26,139 @@ function Home() {
 
   const speak =(text)=>{
     const utterence=new SpeechSynthesisUtterance(text)
-    window.speechSynthesis.speak(utterence)
+    isSpeakingRef.current=true
+    utterence.onend = () => {
+  isSpeakingRef.current = false
+  if (recognitionRef.current && !isRecognizingRef.current) {
+    recognitionRef.current.start()
   }
+    }
+
+    synth.speak(utterence)
+  }
+
+
+const handleCommand =(data)=>{
+  const {type,userInput, response}=data
+speak(response);
+
+if(type ==='google_search'){
+  const query = encodeURIComponent(userInput);
+  window.open(`http://www.google.com/search?q=${query}`,
+  '_blank');
+}
+if (type === 'calculator_open'){
+  window.open(`https://www.google.com/search?q=calculator`,
+    '_blank');
+}
+if(type ==="instagram_open"){
+  window.open(`http://www.instagram.com/`, '_blank')
+}
+ if(type ==="facebook_open"){
+  window.open(`http://www.facebook.com/`, '_blank');
+}
+if(type ==="weather_show"){
+  window.open(`https://www.google.com/search?q=weather`, '_blank')
+}
+if(type === 'youtube_search' || type ==='youtube_play'){
+  const query = encodeURIComponent(userInput);
+  window.open(`http://www.youtube.com/results?search_query=$
+    {query}`, 'blank');
+
+}
+ 
+}
+
+
+
+
+
+
+
 useEffect(()=>{
   const SpeechRecognition=window.SpeechRecognition || window.webkitSpeechRecognition
+  
   const recognition= new SpeechRecognition()
   recognition.continuous=true,
-  recognition.lang='es-IN'
+  recognition.lang='en-IN'
+
+
+  recognitionRef.current=recognition
+
+const isRecognizingRef={current:false}
+
+const safeRecognition=()=>{
+  if(!isSpeakingRef.current && !isRecognizingRef.current){
+  try{
+       recognition.start();
+       console.log("Recognition requested to start");
+  }catch(err){
+ if(err.name !== "InvalidStateError"){
+  console.error("start error:",err);
+ }
+  }
+}
+
+}
+
+recognition.onstart=()=>{
+  console.log("Recognition started");
+  isRecognizingRef.current =true;
+  setListening(true);
+}
+
+recognition.onend=()=>{
+  console.log("Recognition ended");
+  isRecognizingRef.current =false;
+  setListening(false);
+}
+
+if(!isSpeakingRef.current)
+{
+setTimeout(()=>{
+  safeRecognition();
+},1000);
+}
+ 
+recognition.onerror=(event)=>{
+  console.log("Recognition error:", event.error);
+  isRecognizingRef.current=false;
+  setListening(false);
+  if(event.error !== "aborted && !isSpeakingRef.current"){
+    setTimeout(()=>{
+      safeRecognition();
+
+    },1000);
+  }
+};
+
+
 recognition.onresult = async(e)=>{
 const transcript = e.results[e.results.length-1][0].transcript.trim()
 console.log("heard :" + transcript)
 
 if (transcript.toLowerCase().includes(userData.assistantName.toLowerCase())) {
-  
+  recognition.stop()
+  isRecognizingRef.current=false
+  setListening(false)
   const data = await getGeminiResponse(transcript)
-  console.log(data)
 
-    speak(data.response)
+
+    handleCommand(data)
   }
 }
-recognition.start()
-  
+
+const fallback=setInterval(()=>{
+    if(!isSpeakingRef.current && !isRecognizingRef.current){
+      safeRecognition()}
+},10000)
+safeRecognition()
+return()=>{
+  recognition.stop()
+  setListening(false)
+ isRecognizingRef.current=false
+  clearInterval(fallback)
+}
 },[])
 
   return (
@@ -55,4 +174,4 @@ recognition.start()
   )
 }
 
-export default Home
+export default Home;

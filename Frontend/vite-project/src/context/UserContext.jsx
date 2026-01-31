@@ -23,11 +23,11 @@ const handleCurrentUser =async ()=>{
 
 const getGeminiResponse=async (command)=>{
 try {
-    const result= await axios.post(
+    const result = await axios.post(
   `${serverUrl}/api/user/asktoassistant`,
-  { command},
+  { command },
   { withCredentials: true }
-)
+);
 
     return result.data
 } catch (error) {
