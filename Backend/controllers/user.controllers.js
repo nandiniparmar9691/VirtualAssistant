@@ -44,8 +44,18 @@ export const askToAssistant =async(req, res)=>{
         const user=await User.findById(req.userId);
         const userName=user.name
         const assistantName= user.assistantName
-        const result=await geminiResponse(command, assistantName, userName)
-       const jsonMatch = result.match(/{[\s\S]*}/);
+       const result = await geminiResponse(command, assistantName, userName)
+
+// 🟢 ADD THIS CHECK
+if (!result || typeof result !== "string") {
+  return res.status(200).json({
+    type: "general",
+    userInput: command,
+    response: "Sorry, I am a bit busy right now. Please try again in a few seconds."
+  })
+}
+
+const jsonMatch = result.match(/{[\s\S]*}/)
 
         
        if (!jsonMatch) {
