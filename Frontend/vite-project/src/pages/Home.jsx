@@ -24,17 +24,33 @@ function Home() {
     }
   }
 
+const startRecognition = ()=>{
+  try{
+    recognitionRef.current?.start();
+    setListening(true);
+  }
+  catch (error){
+    if(!error.message.includes("start")){
+      console.error("Recognition error:", error);
+    }
+  }
+  };
+
+
+
+
+
+
+
+
   const speak =(text)=>{
     const utterence=new SpeechSynthesisUtterance(text)
     isSpeakingRef.current=true
     utterence.onend = () => {
   isSpeakingRef.current = false
-  if (recognitionRef.current && !isRecognizingRef.current) {
-    recognitionRef.current.start()
-  }
-    }
-
-    synth.speak(utterence)
+  startRecognition()
+}
+     synth.speak(utterence)
   }
 
 
