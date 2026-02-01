@@ -42,7 +42,7 @@ Important:
 - Use ${userName} //agar koi puche tume kisne banaya
 - Only respond with the JSON object, nothing else.
 
-nou your userInput- ${command}`;
+Now your userInput- ${command}`;
 
 
 
@@ -55,6 +55,13 @@ nou your userInput- ${command}`;
       ]
     });
 
+    console.log("Gemini API Response:", JSON.stringify(result.data, null, 2));
+    
+    if (!result.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      console.log("Invalid response structure");
+      return null;
+    }
+    
     return result.data.candidates[0].content.parts[0].text;
   } catch (error) {
     console.log("GEMINI ERROR:", error.response?.data || error.message);
