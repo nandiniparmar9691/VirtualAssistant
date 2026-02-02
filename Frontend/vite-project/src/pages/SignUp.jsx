@@ -14,36 +14,37 @@ function SignUp() {
         const [loading, setLoading]= useState(false)
       const [password, setPassword]=useState("")
       const [err, setErr]=useState("")
-     const handleSignUp = async (e) => {
+    const handleSignUp = async (e) => {
   e.preventDefault();
-setErr("")
+  setErr("");
+  setLoading(true);
 
-setLoading(false)
   try {
     const result = await axios.post(
       `${serverUrl}/api/auth/signup`,
-      {
-        name,
-        email,
-        password,
-      },
-      
-        {withCredentials: true})
-        setUserData(result.data)
-       
-        
+      { name, email, password },
+      { withCredentials: true }
+    );
+
+    setUserData(result.data);
     console.log("Signup success:", result.data);
-    setLoading(false)
-    navigate("/customize")
+    navigate("/customize");
+
   } catch (error) {
-    console.log("Signup error:", error.response?.data || error.message);
-    setUserData(null)
-    setLoading(false)
-    setErr(error.response.data.message)
+    console.log("Signup error:", error);
+
+    setUserData(null);
+
+    // SAFE error handling
+    const message =
+      error?.response?.data?.message ||
+      "Signup failed. Please try again.";
+
+    setErr(message);
+  } finally {
+    setLoading(false);
   }
 };
-
-
 
 
   return (
