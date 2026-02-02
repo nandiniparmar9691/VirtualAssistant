@@ -14,7 +14,7 @@ const app = express();
 
 
 app.use(cors({
-  origin: "https://your-app.vercel.app",
+  origin: "hhttps://virtualassistant-1fr2.onrender.com",
   credentials: true
 }));
 
