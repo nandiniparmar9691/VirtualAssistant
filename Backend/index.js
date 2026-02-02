@@ -9,12 +9,11 @@ import userRouter from "./routes/user.routes.js";
 dotenv.config();
 
 const app = express();
-
-// ✅ ALLOWED ORIGINS
-const allowedOrigins = [
-  "https://virtualassistant-1fr2.onrender.com",
-  credentials:true
-];
+// CORS Middleware
+app.use(cors({
+  origin: "https://virtualassistant-1fr2.onrender.com", // your deployed frontend
+  credentials: true
+}));
 
 
 
