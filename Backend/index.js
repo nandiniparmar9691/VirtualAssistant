@@ -12,25 +12,12 @@ const app = express();
 
 // ✅ ALLOWED ORIGINS
 const allowedOrigins = [
-  "https://virtualassistant-1fr2.onrender.com"
+  "https://virtualassistant-1fr2.onrender.com",
+  credentials:true
 ];
 
-// ✅ SINGLE CORS CONFIG
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman
 
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
 
-// ✅ Handle preflight
-app.options("*", cors());
 
 // middleware
 app.use(express.json());
