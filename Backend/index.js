@@ -12,7 +12,6 @@ const app = express();
 
 // ✅ ALLOWED ORIGINS
 const allowedOrigins = [
-  "http://localhost:5173",
   "https://virtualassistant-1fr2.onrender.com"
 ];
 
