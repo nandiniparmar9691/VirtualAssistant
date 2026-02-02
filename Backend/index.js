@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -11,19 +10,30 @@ dotenv.config();
 
 const app = express();
 
+// ✅ ALLOWED ORIGINS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://virtualassistant-1fr2.onrender.com"
+];
 
-
+// ✅ SINGLE CORS CONFIG
 app.use(cors({
-  origin: "https://virtualassistant-1fr2.onrender.com",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow Postman
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
+// ✅ Handle preflight
+app.options("*", cors());
 
 // middleware
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
-}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -31,15 +41,14 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-
-// test route (important for checking)
+// test route
 app.get("/", (req, res) => {
-    res.send("API is running");
+  res.send("API is running");
 });
 
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () => {
-    connectDb();
-    console.log(`Server started on port ${PORT}`);
+  connectDb();
+  console.log(`Server started on port ${PORT}`);
 });
