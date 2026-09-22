@@ -4,23 +4,24 @@ import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 export const signUp = async (req, res) => {
   try {
-    console.log("REQ BODY:", req.body);   // 👈 ADD THIS
-
     const { name, email, password } = req.body;
 
-        const existEmial=await User.findOne({email})
-        if(existEmial){
-            return res.status(400).json({message:"email already exist!"})
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields (name, email, password) are required." });
+    }
+
+        const existEmial = await User.findOne({ email }).select("_id");
+        if (existEmial){
+            return res.status(400).json({ message: "Email already exists!" });
         }
 
-        if(password.length<6){
-             return res.status(400).json({message:"password must be atleast six characters!"})
-        
+        if (password.length < 6){
+             return res.status(400).json({ message: "Password must be at least six characters!" });
     } 
-   
- const hashedPassword= await bcrypt.hash(password, 10)  //password ko hash karenge directly db m store mhi karwaynge
+    
+ const hashedPassword= await bcrypt.hash(password, 10)
  const user= await User.create({
-    name,password:hashedPassword,email
+    name, password: hashedPassword, email
  })
 
  const token=await genToken(user._id)
@@ -30,11 +31,13 @@ export const signUp = async (req, res) => {
     sameSite:"None",
     secure:true
  })
- return res.status(201).json(user)
+
+ const safeUser = await User.findById(user._id).select("-password");
+ return res.status(201).json(safeUser)
 
 }catch (error) {
-    return res.status(500).json({message:`sign up error ${error}`})
-        
+    console.error(error);
+    return res.status(500).json({ message: "Sign up failed. Please try again." });
     }
 }
 

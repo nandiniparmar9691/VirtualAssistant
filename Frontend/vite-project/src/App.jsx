@@ -8,7 +8,8 @@ import {userDataContext} from './context/UserContext'
 import Home from './pages/Home'
 import Customize2 from './pages/Customize2'
 function App() {
-  const{userData ,setUserData}=useContext(userDataContext)
+  const{userData ,setUserData, authLoading}=useContext(userDataContext)
+  if (authLoading) return null;
   return (
    
       <Routes>

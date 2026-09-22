@@ -1,10 +1,18 @@
 import axios from "axios";
 
 const geminiResponse = async (command, assistantName, userName) => {
-  try {
-    const apiUrl = process.env.GEMINI_API_URL;
+  const apiKey = process.env.GEMINI_API_KEY;
+  const apiUrl = process.env.GEMINI_API_URL;
 
+  if (!apiKey) {
+    console.error("GEMINI ERROR: GEMINI_API_KEY is not set in the backend .env file.");
+    return null;
+  }
 
+  if (!apiUrl) {
+    console.error("GEMINI ERROR: GEMINI_API_URL is not set in the backend .env file.");
+    return null;
+  }
 
   const prompt = `You are a virtual assistant named ${assistantName} created by ${userName}.
 You are not Google. You will now behave like a voice-enabled assistant.
@@ -46,14 +54,24 @@ Now your userInput- ${command}`;
 
 
 
-     const result = await axios.post(apiUrl, {
-      contents: [
-        {
-          role: "user",   // ✅ THIS WAS THE BUG
-          parts: [{ text: prompt }]
+     try {
+    const result = await axios.post(
+      apiUrl,
+      {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }]
+          }
+        ]
+      },
+      {
+        headers: {
+          "x-goog-api-key": apiKey,
+          "Content-Type": "application/json"
         }
-      ]
-    });
+      }
+    );
 
     console.log("Gemini API Response:", JSON.stringify(result.data, null, 2));
     
@@ -64,7 +82,12 @@ Now your userInput- ${command}`;
     
     return result.data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.log("GEMINI ERROR:", error.response?.data || error.message);
+    const detail =
+      error.response?.data?.error?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Unknown Gemini error";
+    console.log("GEMINI ERROR:", detail);
     return null;
   }
 };

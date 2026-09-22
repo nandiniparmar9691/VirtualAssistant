@@ -27,19 +27,19 @@ setLoading(true)
         password,
       },
       
-       { withCredentials: true},
-       setUserData(result.data)
+       { withCredentials: true}
       
     );
 
-    console.log("Signup success:", result.data);
+    console.log("Signin success:", result.data);
+    setUserData(result.data)
     setLoading(false)
        navigate("/")
   } catch (error) {
-    console.log("Signup error:", error.response?.data || error.message);
+    console.log("Signin error:", error.response?.data?.message || error.message);
     setUserData(null)
     setLoading(false)
-    setErr(error.response.data.message)
+    setErr(error.response?.data?.message || "Sign in failed. Please try again.")
   }
 };
 

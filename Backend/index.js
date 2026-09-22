@@ -9,24 +9,27 @@ import userRouter from "./routes/user.routes.js";
 dotenv.config();
 
 const app = express();
+
 // CORS Middleware
-app.use(cors({
-  origin: "https://virtualassistant-1fr2.onrender.com", // your deployed frontend
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "https://virtualassistant-1fr2.onrender.com",
+      "http://localhost:5173",
+    ],
+    credentials: true,
+  })
+);
 
-
-
-
-// middleware
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// routes
+// Routes
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-// test route
+// Test route
 app.get("/", (req, res) => {
   res.send("API is running");
 });
